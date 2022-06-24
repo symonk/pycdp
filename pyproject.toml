@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "pycdp"
+version = "0.1.0"
+description = "Pythonic marshalling of the devtools protocol"
+authors = ["symonk <jackofspaces@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "tox"
+tox = "^3.25.0"
+pre-commit = "^2.19.0"
+mypy = "^0.961"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
