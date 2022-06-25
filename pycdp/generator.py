@@ -2,7 +2,8 @@ import logging
 import pprint
 
 from pycdp._models import Domain
-from pycdp._utils import browser_protocol_data, js_protocol_data
+from pycdp._utils import browser_protocol_data
+from pycdp._utils import js_protocol_data
 
 logging.basicConfig(level=logging.DEBUG)
 

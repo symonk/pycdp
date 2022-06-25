@@ -34,7 +34,7 @@ class TypeProperty:
     description: str
     ref: typing.Optional[str]
     type: typing.Optional[str]
-    items: typing.Optional[typing.Dict]
+    items: typing.Optional[typing.Dict[str, typing.Any]]
 
 
 @dataclass
