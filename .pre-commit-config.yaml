@@ -30,14 +30,10 @@ repos:
       - id: mypy
         files: pycdp/
   - repo: https://github.com/PyCQA/flake8
-    rev: 9f608813b80caf5a966e44d4bfb5e032159eb3e2
+    rev: 92031ae589b0c2cc9817bbbb5f04c3ddfe3a6406
     hooks:
       - id: flake8
         args: ["--max-line-length=120"]
-  - repo: https://github.com/symonk/pre-commit-pdb-vars
-    rev: 071c722d2b36924e30c998a415609176e247fce5
-    hooks:
-      - id: pdb-vars
   - repo: https://github.com/hadialqattan/pycln
     rev: v1.3.5
     hooks:
