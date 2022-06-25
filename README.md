@@ -1,5 +1,4 @@
-# pycdp
-:snake: Marshalling for the chrome devtools protocol in a pythonic way
+# pycdp (Idiomatic python for the devtools protocol)
 
 -----
 
