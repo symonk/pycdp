@@ -1,7 +1,7 @@
 import json
 import pathlib
 import typing
-from .types import JavascriptProtocolAlias
+from ._types import JavascriptProtocolAlias
 from .schemas import JavascriptProtocolSchema
 
 
@@ -17,4 +17,5 @@ def validate_response(protocol_json: JavascriptProtocolAlias) -> bool:
 
     :param protocol_json: A mapping of json data, built from `protocol_file_to_mapping`.
     """
-    JavascriptProtocolSchema().validate(protocol_json)
+    data = JavascriptProtocolSchema().load(protocol_json)
+    x = 1

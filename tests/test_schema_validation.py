@@ -1,5 +1,5 @@
-from pycdp.loader import protocol_file_to_mapping
-from pycdp.loader import validate_response
+from pycdp._builder import protocol_file_to_mapping
+from pycdp._builder import validate_response
 
 
 def test_javascript_json_can_be_validated(asserto, protocol_path):
