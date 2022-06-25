@@ -23,6 +23,7 @@ At present `pycdp` does NOT generate domains that are marked as `deprecated` in 
 
 Chrome devtools protocol is built on the concept of `Domains`.  These domains typically expose an API
 in the form of:
+
     - Commands
     - Types
     - Events
@@ -31,6 +32,7 @@ in the form of:
 for autocompletion assistance.
 
 Types exposed by the protocol fall in to a few categories:
+
     - Primitive (tho not technically in python) types
         - string
         - integer
