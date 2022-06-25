@@ -1,7 +1,7 @@
 import logging
 import pprint
 
-from pycdp._models import Domain
+from pycdp._models import DevtoolsDomain
 from pycdp._utils import browser_protocol_data, js_protocol_data
 
 logging.basicConfig(level=logging.DEBUG)
@@ -13,7 +13,10 @@ def main() -> int:
     """
     js_map, browser_map = js_protocol_data(), browser_protocol_data()
     merged = [domain for domain in js_map["domains"] + browser_map["domains"] if "deprecated" not in domain]
-    domain_objects = [Domain.from_json(m) for m in merged]
+    domain_objects = []
+    for m in merged:
+        print(m)
+        domain_objects.append(DevtoolsDomain.from_dict(m))
     pprint.pprint(domain_objects)
     return 0
 

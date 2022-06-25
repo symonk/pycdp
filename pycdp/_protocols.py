@@ -5,10 +5,10 @@ class Transformable(Protocol):
     """A protocol for (de)serialisation of pythonic objects."""
 
     @classmethod
-    def from_json(cls, mapping) -> ...:  # type: ignore
+    def from_dict(cls, mapping) -> ...:  # type: ignore
         ...
 
-    def to_json(self) -> ...:  # type: ignore
+    def to_dict(self) -> ...:  # type: ignore
         ...
 
 
