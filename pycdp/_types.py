@@ -1,4 +1,4 @@
 import typing
 
-JavascriptProtocolAlias = typing.Dict[str, typing.Any]
+ProtocolMappingAlias = typing.Dict[str, typing.Any]
 SwappableAlias = typing.Tuple[typing.Tuple[str, typing.Any], ...]
