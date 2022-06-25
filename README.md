@@ -1,7 +1,6 @@
-# pycdp (Idiomatic python for the devtools protocol)
+# PYCDP
 
 -----
-
 `pycdp` is a simple library that offers pythonic models around the devtools protocol.  It does not carry out
 any sort of IO with a browser (at present), but instead is useful for libraries that choose to do so.
 
@@ -45,5 +44,3 @@ Types exposed by the protocol fall in to a few categories:
 
 "Primitive types" (again to use the term loosely) end up in simple subclasses of their primitive types
 and all `object` types generate a fully type hinted idiomatic python class
-
------
