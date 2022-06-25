@@ -15,23 +15,23 @@ from ._utils import clone_map_with_defaults
 # Todo: Fix CI.
 
 
-class SimpleTypes(enum.Enum):
+class SimpleType(enum.Enum):
     """Encapsulation of devtools types and their corresponding python types.
     These are the primitive types, tho python doesn't really have any primitive
     types as everything is an object.  For more complex cases we use an object
     and that gets converted into a subsequent dataclass.
     """
-    string = str
-    integer = int
-    number = float
-    object = dict
-    array = list
-    boolean = bool
+    string = "str"
+    integer = "int"
+    number = "float"
+    object = "dict"
+    array = "list"
+    boolean = "bool"
     # Todo: Handle any?
 
 
 @dataclass
-class TypeProperty(Transformable):
+class TypeProperty:
     name: str
     description: str
     ref: typing.Optional[str]
@@ -44,16 +44,20 @@ class TypeProperty(Transformable):
 
 
 @dataclass
-class Parameter(Transformable):
+class Parameter:
     name: str
     description: typing.Optional[str]
     ref: typing.Optional[str]
     optional: bool
     type: typing.Optional[str]
 
+    @classmethod
+    def from_dict(cls, mapping: SwappableAlias) -> Parameter:
+        ...
+
 
 @dataclass
-class Event(Transformable):
+class Event:
     name: str
     description: typing.Optional[str]
     experimental: bool
@@ -67,7 +71,7 @@ class Event(Transformable):
 
 
 @dataclass
-class Items(Transformable):
+class Items:
     type: str
     ref: str
 
@@ -77,7 +81,7 @@ class Items(Transformable):
 
 
 @dataclass
-class Property(Transformable, GeneratesModuleMixin):
+class Property(GeneratesModuleMixin):
     name: str
     description: str
     type: typing.Optional[str]
@@ -89,7 +93,7 @@ class Property(Transformable, GeneratesModuleMixin):
 
 
 @dataclass
-class Returns(Transformable):
+class Returns:
     """Encapsulation of the return value from a devtools Command."""
     name: str
     description: str
@@ -98,7 +102,7 @@ class Returns(Transformable):
 
 
 @dataclass
-class Command(Transformable):
+class Command:
     """Encapsulation of a domain command."""
     name: str
     description: typing.Optional[str]
@@ -115,18 +119,15 @@ class Command(Transformable):
         mapping["parameters"] = [Parameter.from_dict(p) for p in mapping["parameters"]]
         return cls(**mapping)
 
-    def to_dict(self) -> ...: # type: ignore
-        ...
-
 
 @dataclass
 class Type(Transformable):
     id: str
     description: typing.Optional[str]
     type: str
-    items: typing.Optional[Items]
     properties: typing.List[Property]
     enum: typing.List[str]
+    items: typing.Optional[Items]
 
     @classmethod
     def from_dict(cls, mapping) -> Type:
@@ -162,6 +163,3 @@ class Domain(Transformable, GeneratesModuleMixin):
         mapping["commands"] = [Command.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
         mapping["events"] = [Event.from_dict(ev) for ev in mapping["events"]]
         return cls(**mapping)
-
-    def to_dict(self) -> ...:  # type: ignore
-        ...
