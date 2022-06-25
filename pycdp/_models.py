@@ -5,6 +5,7 @@ from dataclasses import dataclass
 
 from ._protocols import Transformable
 from ._types import SwappableAlias
+from ._utils import name_to_snake_case
 from ._utils import clone_map_with_defaults
 
 
@@ -113,4 +114,4 @@ class Domain(Transformable):
     @property
     def mod_name(self) -> str:
         """The python module name in snake case."""
-        breakpoint()
+        return f"{name_to_snake_case(self.domain)}.py"

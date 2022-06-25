@@ -30,7 +30,7 @@ def clone_map_with_defaults(
     return new
 
 
-def convert_to_snake_case(name: str):
+def name_to_snake_case(name: str):
     """Given a string, convert it to snake case."""
     if not name:
         return name
