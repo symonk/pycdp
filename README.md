@@ -44,3 +44,10 @@ Types exposed by the protocol fall in to a few categories:
 
 *Primitive* Types (again to use the term loosely) end up in simple subclasses of their primitive types
 and all `object` types generate a fully type hinted idiomatic python class
+
+-----
+### Goals for Future
+
+`pycdp` aims to implement a typed API for the protocol (and maintain) that fully going forward.  Eventually
+it hopes to expose a websocket connection/API for actually interacting with the protocol but that is a way
+off yet.
