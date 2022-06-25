@@ -33,7 +33,7 @@ class AvailableTypes(enum.Enum):
 
 
 @dataclass
-class TypeProperty(Transformable):
+class DevtoolsTypeProperty(Transformable):
     name: str
     description: str
     ref: typing.Optional[str]
@@ -41,12 +41,12 @@ class TypeProperty(Transformable):
     items: typing.Optional[typing.Dict]
 
     @classmethod
-    def from_dict(cls, mapping) -> TypeProperty:
+    def from_dict(cls, mapping) -> DevtoolsTypeProperty:
         return cls(**mapping)
 
 
 @dataclass
-class Parameter(Transformable):
+class DevtoolsParameter(Transformable):
     name: str
     description: typing.Optional[str]
     ref: typing.Optional[str]
@@ -55,11 +55,11 @@ class Parameter(Transformable):
 
 
 @dataclass
-class Event(Transformable):
+class DevtoolsEvent(Transformable):
     name: str
     description: typing.Optional[str]
     experimental: bool
-    parameters: typing.Optional[typing.List[Parameter]]
+    parameters: typing.Optional[typing.List[DevtoolsParameter]]
 
     @classmethod
     def from_dict(cls, mapping) -> ...:
@@ -74,7 +74,7 @@ class DevtoolsProperty(Transformable):
 
 
 @dataclass
-class Returns(Transformable):
+class DevtoolsReturns(Transformable):
     name: str
     description: str
     type: typing.Optional[str]
@@ -82,20 +82,20 @@ class Returns(Transformable):
 
 
 @dataclass
-class Command(Transformable):
+class DevtoolsCommand(Transformable):
     name: str
     description: typing.Optional[str]
-    parameters: typing.Optional[Parameter]
+    parameters: typing.Optional[DevtoolsParameter]
     experimental: bool
     redirect: typing.Optional[str]
-    returns: typing.Optional[typing.List[Returns]]
+    returns: typing.Optional[typing.List[DevtoolsReturns]]
 
     @classmethod
     def from_dict(cls, mapping) -> ...:  # type: ignore
         swappable = (("description", None), ("parameters", []), ("experimental", False), ("redirect", None))
         mapping["returns"] = []  # hack for now.
         mapping = clone_map_with_defaults(mapping, swappable)
-        mapping["parameters"] = [Parameter.from_dict(p) for p in mapping["parameters"]]
+        mapping["parameters"] = [DevtoolsParameter.from_dict(p) for p in mapping["parameters"]]
         return cls(**mapping)
 
     def to_dict(self) -> ...: # type: ignore
@@ -105,6 +105,7 @@ class Command(Transformable):
 @dataclass
 class DevtoolsItems:
     ...
+
 
 @dataclass
 class DevtoolsType(Transformable):
@@ -130,8 +131,8 @@ class DevtoolsDomain(Transformable, GeneratesModuleMixin):
     experimental: bool
     dependencies: typing.List[str]
     types: typing.List[DevtoolsType]
-    commands: typing.List[Command]
-    events: typing.List[Event]
+    commands: typing.List[DevtoolsCommand]
+    events: typing.List[DevtoolsEvent]
 
     @classmethod
     def from_dict(cls, mapping) -> DevtoolsDomain:
@@ -146,8 +147,8 @@ class DevtoolsDomain(Transformable, GeneratesModuleMixin):
         )
         mapping = clone_map_with_defaults(mapping, swappable)
         mapping["types"] = [DevtoolsType.from_dict(t) for t in mapping["types"]]
-        mapping["commands"] = [Command.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
-        mapping["events"] = [Event.from_dict(ev) for ev in mapping["events"]]
+        mapping["commands"] = [DevtoolsCommand.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
+        mapping["events"] = [DevtoolsEvent.from_dict(ev) for ev in mapping["events"]]
         return cls(**mapping)
 
     def to_dict(self) -> ...:  # type: ignore
