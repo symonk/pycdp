@@ -10,6 +10,11 @@ from ._types import SwappableAlias
 from ._utils import clone_map_with_defaults
 
 
+# Todo: Do we care about avoid deprecated? should we just compile everything possible?
+# Todo: The whole generating code concept; I assume we can just store literal text and write it to files
+    #Todo: is there a better / existing lib for that kind of thing?
+# Todo: Fix CI.
+
 """
 Devtools Protocol stipulates the following types:
     :: string
@@ -30,6 +35,7 @@ class AvailableTypes(enum.Enum):
     object = dict
     array = list
     boolean = bool
+    # any?
 
 
 @dataclass
@@ -69,8 +75,25 @@ class DevtoolsEvent(Transformable):
 
 
 @dataclass
-class DevtoolsProperty(Transformable):
-    ...
+class DevtoolsItems(Transformable):
+    type: str
+    ref: str
+
+    @classmethod
+    def from_dict(cls, mapping) -> ...:
+        ...
+
+
+@dataclass
+class DevtoolsProperty(Transformable, GeneratesModuleMixin):
+    name: str
+    description: str
+    type: typing.Optional[str]
+    ref: typing.Optional[str]
+    enum: typing.List[str]
+    items: typing.Optional[DevtoolsItems]
+    optional: bool
+    experimental: bool
 
 
 @dataclass
