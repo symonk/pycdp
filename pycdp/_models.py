@@ -9,34 +9,57 @@ from ._utils import clone_map_with_defaults
 
 
 @dataclass
-class TypeProperty:
+class TypeProperty(Transformable):
     name: str
     description: str
     type: str
 
 
 @dataclass
-class Parameter:
-    ...
+class Parameter(Transformable):
+    name: str
+    description: typing.Optional[str]
+    ref: typing.Optional[str]
+    optional: bool
+    type: typing.Optional[str]
 
 
 @dataclass
-class Event:
+class Event(Transformable):
     name: str
     description: str
     parameters: typing.List[Parameter]
 
 
 @dataclass
-class Returns:
+class Property(Transformable):
     ...
 
 
 @dataclass
-class Command:
+class Returns(Transformable):
     name: str
     description: str
-    returns: typing.List[Returns]
+    type: typing.Optional[str]
+    ref: str
+
+
+@dataclass
+class Command(Transformable):
+    name: str
+    description: typing.Optional[str]
+    parameters: typing.Optional[Parameter]
+    returns: typing.Optional[typing.List[Returns]]
+
+    @classmethod
+    def from_json(cls, mapping) -> ...:  # type: ignore
+        swappable = (("description", None), ("parameters", []))
+        mapping = clone_map_with_defaults(mapping, swappable)
+        mapping["parameters"] = [Parameter.from_json(p) for p in mapping["parameters"]]
+        return cls(**mapping)
+
+    def to_json(self) -> ...: # type: ignore
+        ...
 
 
 @dataclass
@@ -80,7 +103,14 @@ class Domain(Transformable):
         )
         mapping = clone_map_with_defaults(mapping, swappable)
         mapping["types"] = [Type.from_json(t) for t in mapping["types"]]
+        mapping["commands"] = [Command.from_json(comm) for comm in mapping["commands"]]
+        mapping["events"] = [Event.from_json(ev) for ev in mapping["events"]]
         return cls(**mapping)
 
     def to_json(self) -> ...:  # type: ignore
         ...
+
+    @property
+    def mod_name(self) -> str:
+        """The python module name in snake case."""
+        breakpoint()

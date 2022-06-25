@@ -28,3 +28,17 @@ def clone_map_with_defaults(
     for key, missing in swap_if_missing:
         new.setdefault(key, missing)
     return new
+
+
+def convert_to_snake_case(name: str):
+    """Given a string, convert it to snake case."""
+    if not name:
+        return name
+    new = [name[0].lower()]
+    for char in name[1:]:
+        if char.isupper():
+            new.append("_")
+            new.append(char.lower())
+        else:
+            new.append(char)
+    return "".join(new)
