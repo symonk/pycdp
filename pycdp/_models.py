@@ -12,30 +12,22 @@ from ._utils import clone_map_with_defaults
 
 # Todo: Do we care about avoid deprecated? should we just compile everything possible?
 # Todo: The whole generating code concept; I assume we can just store literal text and write it to files
-    #Todo: is there a better / existing lib for that kind of thing?
 # Todo: Fix CI.
 
-"""
-Devtools Protocol stipulates the following types:
-    :: string
-    :: integer
-    :: boolean
-    :: array
-    :: number
-    :: object
-    :: any
-"""
 
-
-class AvailableTypes(enum.Enum):
-    """Encapsulation of devtools types and their corresponding python types."""
+class SimpleTypes(enum.Enum):
+    """Encapsulation of devtools types and their corresponding python types.
+    These are the primitive types, tho python doesn't really have any primitive
+    types as everything is an object.  For more complex cases we use an object
+    and that gets converted into a subsequent dataclass.
+    """
     string = str
     integer = int
     number = float
     object = dict
     array = list
     boolean = bool
-    # any?
+    # Todo: Handle any?
 
 
 @dataclass
