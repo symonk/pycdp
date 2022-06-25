@@ -1,33 +1,24 @@
 import json
 import pathlib
 
-from ._types import ProtocolMappingAlias, SwappableAlias
+from ._types import ProtocolMappingAlias
 
 
-def protocol_file_to_mapping(path: pathlib.Path) -> ProtocolMappingAlias:
+def protocol_file_to_mapping(name: str) -> ProtocolMappingAlias:
     """Load the protocol json file and return the json parsed mapping object."""
-    with open(path, "rb") as file:
+    base_path = pathlib.Path(__file__).parents[1].joinpath("devtools-protocol", "json")
+    with open(base_path.joinpath(name), "rb") as file:
         return json.load(file)
 
 
 def js_protocol_data() -> ProtocolMappingAlias:
-    js_json_path = pathlib.Path(__file__).parents[1].joinpath("devtools-protocol", "json", "js_protocol.json")
-    return protocol_file_to_mapping(js_json_path)
+    """Parse and return the javascript protocol json content."""
+    return protocol_file_to_mapping("js_protocol.json")
 
 
 def browser_protocol_data() -> ProtocolMappingAlias:
-    browser_json_path = pathlib.Path(__file__).parents[1].joinpath("devtools-protocol", "json", "browser_protocol.json")
-    return protocol_file_to_mapping(browser_json_path)
-
-
-def clone_map_with_defaults(
-    mapping: ProtocolMappingAlias, swap_if_missing: SwappableAlias
-) -> ProtocolMappingAlias:
-    """Given a mapping, Update keys with missing values."""
-    new = dict(**mapping)
-    for key, missing in swap_if_missing:
-        new.setdefault(key, missing)
-    return new
+    """Parse and return the browser protocol json content."""
+    return protocol_file_to_mapping("browser_protocol.json")
 
 
 def name_to_snake_case(name: str):

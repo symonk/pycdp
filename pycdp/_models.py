@@ -5,22 +5,20 @@ import typing
 from dataclasses import dataclass
 
 from ._mixins import GeneratesModuleMixin
-from ._protocols import Transformable
-from ._types import SwappableAlias
-from ._utils import clone_map_with_defaults
-
+from ._types import ProtocolMappingAlias
 
 # Todo: Do we care about avoid deprecated? should we just compile everything possible?
 # Todo: The whole generating code concept; I assume we can just store literal text and write it to files
 # Todo: Fix CI.
 
 
-class SimpleType(enum.Enum):
+class MimicPrimitives(enum.Enum):
     """Encapsulation of devtools types and their corresponding python types.
     These are the primitive types, tho python doesn't really have any primitive
     types as everything is an object.  For more complex cases we use an object
     and that gets converted into a subsequent dataclass.
     """
+
     string = "str"
     integer = "int"
     number = "float"
@@ -38,10 +36,6 @@ class TypeProperty:
     type: typing.Optional[str]
     items: typing.Optional[typing.Dict]
 
-    @classmethod
-    def from_dict(cls, mapping) -> TypeProperty:
-        return cls(**mapping)
-
 
 @dataclass
 class Parameter:
@@ -52,22 +46,33 @@ class Parameter:
     type: typing.Optional[str]
 
     @classmethod
-    def from_dict(cls, mapping: SwappableAlias) -> Parameter:
-        ...
+    def deserialize(cls, data: ProtocolMappingAlias) -> Parameter:
+        return cls(
+            name=data["name"],
+            description=data.get("description", None),
+            ref=data.get("ref", None),
+            optional=data.get("optional", False),
+            type=data.get("type", None),
+        )
 
 
 @dataclass
 class Event:
+    """The encapsulation of a CDP domain Event."""
+
     name: str
     description: typing.Optional[str]
     experimental: bool
-    parameters: typing.Optional[typing.List[Parameter]]
+    parameters: typing.List[Parameter]
 
     @classmethod
-    def from_dict(cls, mapping) -> ...:
-        swaps = (("parameters", []), ("description", None), ("experimental", False))
-        mapping = clone_map_with_defaults(mapping, swaps)
-        return cls(**mapping)
+    def deserialize(cls, data: ProtocolMappingAlias) -> Event:
+        return cls(
+            name=data["name"],
+            description=data.get("description", None),
+            experimental=data.get("experimental", False),
+            parameters=[Parameter.deserialize(parameter) for parameter in data.get("parameters", [])],
+        )
 
 
 @dataclass
@@ -75,13 +80,9 @@ class Items:
     type: str
     ref: str
 
-    @classmethod
-    def from_dict(cls, mapping) -> ...:
-        ...
-
 
 @dataclass
-class Property(GeneratesModuleMixin):
+class ObjectProperty(GeneratesModuleMixin):
     name: str
     description: str
     type: typing.Optional[str]
@@ -91,10 +92,20 @@ class Property(GeneratesModuleMixin):
     optional: bool
     experimental: bool
 
+    @classmethod
+    def deserialize(cls, data: ProtocolMappingAlias) -> ObjectProperty:
+        raise NotImplementedError
+
+
+@dataclass
+class CommandProperty(ObjectProperty):
+    """A Command Argument."""
+
 
 @dataclass
 class Returns:
     """Encapsulation of the return value from a devtools Command."""
+
     name: str
     description: str
     type: typing.Optional[str]
@@ -104,41 +115,51 @@ class Returns:
 @dataclass
 class Command:
     """Encapsulation of a domain command."""
+
     name: str
     description: typing.Optional[str]
     parameters: typing.Optional[Parameter]
     experimental: bool
     redirect: typing.Optional[str]
-    returns: typing.Optional[typing.List[Returns]]
+    returns: typing.List[Returns]
 
     @classmethod
-    def from_dict(cls, mapping) -> ...:  # type: ignore
-        swappable = (("description", None), ("parameters", []), ("experimental", False), ("redirect", None))
-        mapping["returns"] = []  # hack for now.
-        mapping = clone_map_with_defaults(mapping, swappable)
-        mapping["parameters"] = [Parameter.from_dict(p) for p in mapping["parameters"]]
-        return cls(**mapping)
+    def deserialize(cls, data: ProtocolMappingAlias) -> Command:  # type: ignore
+        return cls(
+            name=data["name"],
+            description=data.get("description", None),
+            parameters=data.get("parameters", []),
+            experimental=data.get("experimental", False),
+            redirect=data.get("redirect", None),
+            returns=data.get("returns", []),
+        )
 
 
 @dataclass
-class Type(Transformable):
+class Type:
     id: str
     description: typing.Optional[str]
     type: str
-    properties: typing.List[Property]
+    properties: typing.List[ObjectProperty]
     enum: typing.List[str]
     items: typing.Optional[Items]
 
     @classmethod
-    def from_dict(cls, mapping) -> Type:
-        swappable: SwappableAlias = (("properties", []), ("experimental", False), ("description", None), ("enum", []))
-        mapping = clone_map_with_defaults(mapping, swappable)
-        return cls(**mapping)
+    def deserialize(cls, data: ProtocolMappingAlias) -> Type:
+        return cls(
+            id=data["id"],
+            description=data.get("description", None),
+            type=data["type"],
+            properties=[ObjectProperty.deserialize(prop) for prop in data.get("properties", [])],
+            enum=data.get("enum", []),
+            items=data.get("items", None),
+        )
 
 
 @dataclass
-class Domain(Transformable, GeneratesModuleMixin):
+class Domain(GeneratesModuleMixin):
     """Encapsulation of a devtools domain."""
+
     domain: str
     description: typing.Optional[str]
     experimental: bool
@@ -148,18 +169,13 @@ class Domain(Transformable, GeneratesModuleMixin):
     events: typing.List[Event]
 
     @classmethod
-    def from_dict(cls, mapping) -> Domain:
-        # Todo: This is naive and only a place holder for now!
-        swappable: SwappableAlias = (
-            ("dependencies", []),
-            ("description", None),
-            ("types", []),
-            ("commands", []),
-            ("events", []),
-            ("experimental", False),
+    def from_dict(cls, data: ProtocolMappingAlias) -> Domain:
+        return cls(
+            domain=data["domain"],
+            description=data.get("description", None),
+            experimental=data.get("experimental", False),
+            dependencies=data.get("dependencies", []),
+            types=[Type.deserialize(_type) for _type in data.get("types", [])],
+            commands=[Command.deserialize(command) for command in data.get("commands", [])],
+            events=[Event.deserialize(event) for event in data.get("events", [])],
         )
-        mapping = clone_map_with_defaults(mapping, swappable)
-        mapping["types"] = [Type.from_dict(t) for t in mapping["types"]]
-        mapping["commands"] = [Command.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
-        mapping["events"] = [Event.from_dict(ev) for ev in mapping["events"]]
-        return cls(**mapping)

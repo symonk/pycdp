@@ -13,11 +13,9 @@ def main() -> int:
     """
     js_map, browser_map = js_protocol_data(), browser_protocol_data()
     merged = [domain for domain in js_map["domains"] + browser_map["domains"] if "deprecated" not in domain]
-    domain_objects = []
-    for m in merged:
-        print(m)
-        domain_objects.append(Domain.from_dict(m))
-    pprint.pprint(domain_objects)
+    # Let's just build one object for now.
+    domain = Domain.from_dict(merged[0])
+    pprint.pprint(domain)
     return 0
 
 
