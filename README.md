@@ -42,5 +42,5 @@ Types exposed by the protocol fall in to a few categories:
     * Enum types
     * Plain old python objects
 
-"Primitive types" (again to use the term loosely) end up in simple subclasses of their primitive types
+*Primitive* Types (again to use the term loosely) end up in simple subclasses of their primitive types
 and all `object` types generate a fully type hinted idiomatic python class
