@@ -5,81 +5,81 @@ class BaseSchema(Schema):
     """A base schema with improved error handling."""
 
 
-class Version(Schema):
+class VersionSchema(BaseSchema):
     major = fields.String(required=True)
     minor = fields.String(required=True)
 
 
-class Type(BaseSchema):
+class TypeSchema(BaseSchema):
     identity = fields.String(data_key="id")
     description = fields.String()
     type = fields.String()
 
 
-class Types(BaseSchema):
-    types = fields.List(fields.Nested(Type))
+class TypesSchema(BaseSchema):
+    types = fields.List(fields.Nested(TypeSchema))
 
 
-class Parameter(BaseSchema):
+class ParameterSchema(BaseSchema):
     name = fields.String()
     description = fields.String()
     optional = fields.Boolean()
     ref = fields.String(data_key="$ref")
 
 
-class Parameters(BaseSchema):
-    parameters = fields.List(fields.Nested(Parameter))
+class ParametersSchema(BaseSchema):
+    parameters = fields.List(fields.Nested(ParameterSchema))
 
 
-class Returns(BaseSchema):
+class ReturnsSchema(BaseSchema):
     name = fields.String()
     description = fields.String()
     type_ = fields.String(data_key="type")
     items = fields.Dict(fields.String(), fields.String())
 
 
-class Command(BaseSchema):
+class CommandSchema(BaseSchema):
     name = fields.String()
     description = fields.String()
     experimental = fields.Boolean()
-    parameters = fields.List(fields.Nested(Parameter))
-    returns = fields.List(fields.Nested(Returns))
+    parameters = fields.List(fields.Nested(ParameterSchema))
+    returns = fields.List(fields.Nested(ReturnsSchema))
 
 
-class Commands(BaseSchema):
-    commands = fields.List(fields.Nested(Command))
+class CommandsSchema(BaseSchema):
+    commands = fields.List(fields.Nested(CommandSchema))
 
 
-class Event(BaseSchema):
+class EventSchema(BaseSchema):
     name = fields.String()
     description = fields.String()
     experimental = fields.Boolean()
-    parameters = fields.List(fields.Nested(Parameter))
+    parameters = fields.List(fields.Nested(ParameterSchema))
 
 
-class EventParameter(BaseSchema):
+class EventParamSchema(BaseSchema):
     name = fields.String()
     description = fields.String()
     ref = fields.String(data_key="$ref")
     type_ = fields.String()
 
 
-class Events(BaseSchema):
-    events = fields.List(fields.Nested(Event))
+class EventsSchema(BaseSchema):
+    events = fields.List(fields.Nested(EventSchema))
 
 
-class Domain(BaseSchema):
+class DomainSchema(BaseSchema):
     domain = fields.String()
     experimental = fields.Boolean()
     dependencies = fields.List(fields.String())
-    types = fields.Nested(Types)
-    commands = fields.Nested(Commands)
+    types = fields.Nested(TypesSchema)
+    commands = fields.Nested(CommandsSchema)
 
 
-class Domains(BaseSchema):
-    domains = fields.List(fields.Nested(Domain))
+class DomainsSchema(BaseSchema):
+    domains = fields.List(fields.Nested(DomainSchema))
 
 
-class JavascriptProtocol(BaseSchema):
-    version = fields.Nested(Version)
-    domains = fields.Nested(Domains)
+class JavascriptProtocolSchema(BaseSchema):
+    version = fields.Nested(VersionSchema)
+    domains = fields.Nested(DomainsSchema)

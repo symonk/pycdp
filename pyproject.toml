@@ -12,7 +12,8 @@ marshmallow = "^3.16.0"
 pytest = "tox"
 tox = "^3.25.0"
 pre-commit = "^2.19.0"
-asserto = {version = "0.0.6a0", allow-prereleases = true}
+asserto = {version = "0.0.7"}
+coverage = "^6.4.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
