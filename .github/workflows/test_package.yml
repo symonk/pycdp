@@ -73,7 +73,7 @@ jobs:
         run: |
           tox -e ${{ matrix.tox_env }}
       - name: Test with coverage
-        if: "matrix.do_cov"
+        if: "! matrix.do_cov"  # skipped for now until codecov has repo access
         run: |
           tox -e ${{ matrix.tox_env }}
       - name: Generate cov report
