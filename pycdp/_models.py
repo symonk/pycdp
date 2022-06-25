@@ -28,7 +28,7 @@ Devtools Protocol stipulates the following types:
 
 
 class AvailableTypes(enum.Enum):
-    # store a callable to convert data to the appropriate type.
+    """Encapsulation of devtools types and their corresponding python types."""
     string = str
     integer = int
     number = float
@@ -39,7 +39,7 @@ class AvailableTypes(enum.Enum):
 
 
 @dataclass
-class DevtoolsTypeProperty(Transformable):
+class TypeProperty(Transformable):
     name: str
     description: str
     ref: typing.Optional[str]
@@ -47,12 +47,12 @@ class DevtoolsTypeProperty(Transformable):
     items: typing.Optional[typing.Dict]
 
     @classmethod
-    def from_dict(cls, mapping) -> DevtoolsTypeProperty:
+    def from_dict(cls, mapping) -> TypeProperty:
         return cls(**mapping)
 
 
 @dataclass
-class DevtoolsParameter(Transformable):
+class Parameter(Transformable):
     name: str
     description: typing.Optional[str]
     ref: typing.Optional[str]
@@ -61,11 +61,11 @@ class DevtoolsParameter(Transformable):
 
 
 @dataclass
-class DevtoolsEvent(Transformable):
+class Event(Transformable):
     name: str
     description: typing.Optional[str]
     experimental: bool
-    parameters: typing.Optional[typing.List[DevtoolsParameter]]
+    parameters: typing.Optional[typing.List[Parameter]]
 
     @classmethod
     def from_dict(cls, mapping) -> ...:
@@ -75,7 +75,7 @@ class DevtoolsEvent(Transformable):
 
 
 @dataclass
-class DevtoolsItems(Transformable):
+class Items(Transformable):
     type: str
     ref: str
 
@@ -85,19 +85,20 @@ class DevtoolsItems(Transformable):
 
 
 @dataclass
-class DevtoolsProperty(Transformable, GeneratesModuleMixin):
+class Property(Transformable, GeneratesModuleMixin):
     name: str
     description: str
     type: typing.Optional[str]
     ref: typing.Optional[str]
     enum: typing.List[str]
-    items: typing.Optional[DevtoolsItems]
+    items: typing.Optional[Items]
     optional: bool
     experimental: bool
 
 
 @dataclass
-class DevtoolsReturns(Transformable):
+class Returns(Transformable):
+    """Encapsulation of the return value from a devtools Command."""
     name: str
     description: str
     type: typing.Optional[str]
@@ -105,20 +106,21 @@ class DevtoolsReturns(Transformable):
 
 
 @dataclass
-class DevtoolsCommand(Transformable):
+class Command(Transformable):
+    """Encapsulation of a domain command."""
     name: str
     description: typing.Optional[str]
-    parameters: typing.Optional[DevtoolsParameter]
+    parameters: typing.Optional[Parameter]
     experimental: bool
     redirect: typing.Optional[str]
-    returns: typing.Optional[typing.List[DevtoolsReturns]]
+    returns: typing.Optional[typing.List[Returns]]
 
     @classmethod
     def from_dict(cls, mapping) -> ...:  # type: ignore
         swappable = (("description", None), ("parameters", []), ("experimental", False), ("redirect", None))
         mapping["returns"] = []  # hack for now.
         mapping = clone_map_with_defaults(mapping, swappable)
-        mapping["parameters"] = [DevtoolsParameter.from_dict(p) for p in mapping["parameters"]]
+        mapping["parameters"] = [Parameter.from_dict(p) for p in mapping["parameters"]]
         return cls(**mapping)
 
     def to_dict(self) -> ...: # type: ignore
@@ -126,39 +128,34 @@ class DevtoolsCommand(Transformable):
 
 
 @dataclass
-class DevtoolsItems:
-    ...
-
-
-@dataclass
-class DevtoolsType(Transformable):
+class Type(Transformable):
     id: str
     description: typing.Optional[str]
     type: str
-    items: typing.Optional[DevtoolsItems]
-    properties: typing.List[DevtoolsProperty]
+    items: typing.Optional[Items]
+    properties: typing.List[Property]
     enum: typing.List[str]
 
     @classmethod
-    def from_dict(cls, mapping) -> DevtoolsType:
+    def from_dict(cls, mapping) -> Type:
         swappable: SwappableAlias = (("properties", []), ("experimental", False), ("description", None), ("enum", []))
         mapping = clone_map_with_defaults(mapping, swappable)
         return cls(**mapping)
 
 
 @dataclass
-class DevtoolsDomain(Transformable, GeneratesModuleMixin):
+class Domain(Transformable, GeneratesModuleMixin):
     """Encapsulation of a devtools domain."""
     domain: str
     description: typing.Optional[str]
     experimental: bool
     dependencies: typing.List[str]
-    types: typing.List[DevtoolsType]
-    commands: typing.List[DevtoolsCommand]
-    events: typing.List[DevtoolsEvent]
+    types: typing.List[Type]
+    commands: typing.List[Command]
+    events: typing.List[Event]
 
     @classmethod
-    def from_dict(cls, mapping) -> DevtoolsDomain:
+    def from_dict(cls, mapping) -> Domain:
         # Todo: This is naive and only a place holder for now!
         swappable: SwappableAlias = (
             ("dependencies", []),
@@ -169,9 +166,9 @@ class DevtoolsDomain(Transformable, GeneratesModuleMixin):
             ("experimental", False),
         )
         mapping = clone_map_with_defaults(mapping, swappable)
-        mapping["types"] = [DevtoolsType.from_dict(t) for t in mapping["types"]]
-        mapping["commands"] = [DevtoolsCommand.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
-        mapping["events"] = [DevtoolsEvent.from_dict(ev) for ev in mapping["events"]]
+        mapping["types"] = [Type.from_dict(t) for t in mapping["types"]]
+        mapping["commands"] = [Command.from_dict(comm) for comm in mapping["commands"] if "deprecated" not in comm]
+        mapping["events"] = [Event.from_dict(ev) for ev in mapping["events"]]
         return cls(**mapping)
 
     def to_dict(self) -> ...:  # type: ignore

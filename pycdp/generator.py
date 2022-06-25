@@ -1,7 +1,7 @@
 import logging
 import pprint
 
-from pycdp._models import DevtoolsDomain
+from pycdp._models import Domain
 from pycdp._utils import browser_protocol_data, js_protocol_data
 
 logging.basicConfig(level=logging.DEBUG)
@@ -16,7 +16,7 @@ def main() -> int:
     domain_objects = []
     for m in merged:
         print(m)
-        domain_objects.append(DevtoolsDomain.from_dict(m))
+        domain_objects.append(Domain.from_dict(m))
     pprint.pprint(domain_objects)
     return 0
 
