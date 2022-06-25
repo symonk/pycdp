@@ -28,8 +28,15 @@ class Parameter(Transformable):
 @dataclass
 class Event(Transformable):
     name: str
-    description: str
-    parameters: typing.List[Parameter]
+    description: typing.Optional[str]
+    experimental: bool
+    parameters: typing.Optional[typing.List[Parameter]]
+
+    @classmethod
+    def from_json(cls, mapping) -> ...:
+        swaps = (("parameters", []), ("description", None), ("experimental", False))
+        mapping = clone_map_with_defaults(mapping, swaps)
+        return cls(**mapping)
 
 
 @dataclass
@@ -50,11 +57,13 @@ class Command(Transformable):
     name: str
     description: typing.Optional[str]
     parameters: typing.Optional[Parameter]
+    experimental: bool
     returns: typing.Optional[typing.List[Returns]]
 
     @classmethod
     def from_json(cls, mapping) -> ...:  # type: ignore
-        swappable = (("description", None), ("parameters", []))
+        swappable = (("description", None), ("parameters", []), ("experimental", False))
+        mapping["returns"] = []  # hack for now.
         mapping = clone_map_with_defaults(mapping, swappable)
         mapping["parameters"] = [Parameter.from_json(p) for p in mapping["parameters"]]
         return cls(**mapping)
@@ -97,6 +106,7 @@ class Domain(Transformable):
         # Todo: This is naive and only a place holder for now!
         swappable: SwappableAlias = (
             ("dependencies", []),
+            ("description", None),
             ("types", []),
             ("commands", []),
             ("events", []),
@@ -104,7 +114,7 @@ class Domain(Transformable):
         )
         mapping = clone_map_with_defaults(mapping, swappable)
         mapping["types"] = [Type.from_json(t) for t in mapping["types"]]
-        mapping["commands"] = [Command.from_json(comm) for comm in mapping["commands"]]
+        mapping["commands"] = [Command.from_json(comm) for comm in mapping["commands"] if "deprecated" not in comm]
         mapping["events"] = [Event.from_json(ev) for ev in mapping["events"]]
         return cls(**mapping)
 
