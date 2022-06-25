@@ -58,11 +58,12 @@ class Command(Transformable):
     description: typing.Optional[str]
     parameters: typing.Optional[Parameter]
     experimental: bool
+    redirect: typing.Optional[str]
     returns: typing.Optional[typing.List[Returns]]
 
     @classmethod
     def from_json(cls, mapping) -> ...:  # type: ignore
-        swappable = (("description", None), ("parameters", []), ("experimental", False))
+        swappable = (("description", None), ("parameters", []), ("experimental", False), ("redirect", None))
         mapping["returns"] = []  # hack for now.
         mapping = clone_map_with_defaults(mapping, swappable)
         mapping["parameters"] = [Parameter.from_json(p) for p in mapping["parameters"]]
