@@ -13,10 +13,10 @@ def main() -> int:
     writes them to disk as new python modules in a `devtools` module.
     """
     js_map, browser_map = js_protocol_data(), browser_protocol_data()
-    merged = [domain for domain in js_map["domains"] + browser_map["domains"]]
+    merged_domains = [domain for domain in js_map["domains"] + browser_map["domains"]]
     # Let's just build one object for now.
-    domain = Domain.from_dict(merged[0])
-    pprint.pprint(domain)
+    domains = [Domain.deserialize(domain) for domain in merged_domains]
+    pprint.pprint(domains)
     return 0
 
 

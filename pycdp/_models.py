@@ -1,13 +1,11 @@
-from __future__ import annotations
-
-import enum
-import typing
-from dataclasses import dataclass
-
-from ._mixins import GeneratesModuleMixin
-from ._types import ProtocolMappingAlias
-
 """
+The following is on-going documentation as I research and wrap my head around the devtools protocol
+APIs, they are quite complex and take a bit of deciphering to fully understand how it pieces together.
+They may be completely incorrect, this is 'notes' from studying the browser_protocl.json and js_protocol.json
+files.
+
+-----
+
 Model explanations.
     Domain is the highest level and the entire CDP is based around an array of Domain objects
     -- Each domain has the following (potential) keys:
@@ -18,7 +16,7 @@ Model explanations.
         -- deprecated | description | experimental | name | parameters
     -- Each type has the following (potential) keys:
         -- deprecated | description | enum | experimental | id | items | properties | type
-        
+
 Types composition:
     # What is a domain?
     Domain:
@@ -30,7 +28,7 @@ Types composition:
         commands: typing.List[Command]  # List of command object instances
         events: typing.List[Event]  # List of event object instances
         types: typing.List[Type]  # List of types
-        
+
     # What is a command?
     Command:
         name: str  # The command name
@@ -40,17 +38,32 @@ Types composition:
         parameters: typing.List[Parameter]  # A list of command arguments (primitives or objects)
         redirect: typing.Optional[str]  # Another domain name for the redirect? (still not sure here...)
         returns: typing.Optional[Parameter]  # A list of returned data from the command (primitives or objects)
-        
+
     # Notes: Command parameter and returns appear to be largely the same thing
-    
+
     -----
-    
+
     # What is a Parameter?
-        
-        
-        
+        -- Todo
+
+    # What is an event?
+    Event:
+        deprecated: bool  # Whether the event has been deprecated.
+        description: typing.Optional[str]  # An optional string of the event description.
+        experimental: bool  # Whether the event is considered experimental and may change.
+        name: str  # The name of the event
+        parameters: typing.List[Parameter]  # A list of event parameters.
 
 """
+
+from __future__ import annotations
+
+import enum
+import typing
+from dataclasses import dataclass
+
+from ._mixins import GeneratesModuleMixin
+from ._types import ProtocolMappingAlias
 
 
 class Primitive(enum.Enum):
@@ -82,6 +95,7 @@ class TypeProperty:
 class Parameter:
     """An argument type to a command.  This may also be returned by the response from a commands
     actions, tho I need to understand how that fits in together."""
+
     name: str
     description: typing.Optional[str]
     ref: typing.Optional[str]
@@ -101,11 +115,19 @@ class Parameter:
 
 @dataclass
 class Event:
-    """The encapsulation of a CDP domain Event."""
+    """Encapsulation of a domain omitted event.
+
+    :param name: The name of the event
+    :param description: The optional description of the event
+    :param experimental: Whether the event is considered experimental and may change.
+    :param deprecated: Whether the event has been deprecated or not.
+    :param parameters: A list of parameters for the event.
+    """
 
     name: str
     description: typing.Optional[str]
     experimental: bool
+    deprecated: bool
     parameters: typing.List[Parameter]
 
     @classmethod
@@ -114,6 +136,7 @@ class Event:
             name=data["name"],
             description=data.get("description", None),
             experimental=data.get("experimental", False),
+            deprecated=data.get("deprecated", False),
             parameters=[Parameter.deserialize(parameter) for parameter in data.get("parameters", [])],
         )
 
@@ -125,15 +148,13 @@ class Items:
     :param type: Optional string representing the type of the value if primitive.
     :param ref: Optional string representing the type of the value if object.
     """
+
     type: typing.Optional[str]
     ref: typing.Optional[str]
 
     @classmethod
     def deserialize(cls, data: ProtocolMappingAlias) -> Items:
-        return cls(
-            type=data.get("type", None),
-            ref=data.get("ref", None)
-        )
+        return cls(type=data.get("type", None), ref=data.get("ref", None))
 
 
 @dataclass
@@ -170,18 +191,13 @@ class ObjectProperty(GeneratesModuleMixin):
             enum=data.get("enum", []),
             optional=data.get("optional", False),
             type=data.get("type", None),
-            items=Items.deserialize(data["items"]) if "items" in data else None
+            items=Items.deserialize(data["items"]) if "items" in data else None,
         )
 
 
 @dataclass
-class Returns:
-    """Encapsulation of the return value from a devtools Command."""
-
-    name: str
-    description: str
-    type: typing.Optional[str]
-    ref: str
+class ReturnParameter(Parameter):
+    """Encapsulation of the return parameters for a command."""
 
 
 @dataclass
@@ -193,7 +209,7 @@ class Command:
     :param description: The (Optional) description of the command.
     :param parameters: The arguments to be dispatched with the command.
     :param experimental: Whether the command has been marked experimental by the chrome team and may change.
-    :param redirect: A module to be used for a redirect?  # Todo: Update this.
+    :param redirect: A module to be used for a redirect?  # Todo: Update this I don't fully understand what it is.
     :param returns: A list of parameters that can be returned for the command response.
     """
 
@@ -205,14 +221,14 @@ class Command:
     returns: typing.List[Parameter]
 
     @classmethod
-    def deserialize(cls, data: ProtocolMappingAlias) -> Command:  # type: ignore
+    def deserialize(cls, data: ProtocolMappingAlias) -> Command:
         return cls(
             name=data["name"],
             description=data.get("description", None),
-            parameters=[Parameter.deserialize(param) for param in data.get("parameters", [])],
+            parameters=[Parameter.deserialize(parameter) for parameter in data.get("parameters", [])],
             experimental=data.get("experimental", False),
             redirect=data.get("redirect", None),
-            returns=data.get("returns", []),
+            returns=[ReturnParameter.deserialize(parameter) for parameter in data.get("returns", [])],
         )
 
 
@@ -250,7 +266,7 @@ class Domain(GeneratesModuleMixin):
     events: typing.List[Event]
 
     @classmethod
-    def from_dict(cls, data: ProtocolMappingAlias) -> Domain:
+    def deserialize(cls, data: ProtocolMappingAlias) -> Domain:
         return cls(
             domain=data["domain"],
             description=data.get("description", None),
