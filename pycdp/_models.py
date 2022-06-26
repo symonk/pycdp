@@ -54,6 +54,10 @@ Types composition:
         name: str  # The name of the event
         parameters: typing.List[Parameter]  # A list of event parameters.
 
+    # What is a Type?
+    Type:
+        ...
+
 """
 
 from __future__ import annotations
@@ -234,6 +238,16 @@ class Command:
 
 @dataclass
 class Type:
+    """Encapsulation of the types associated with a devtools Domain
+
+    :param id: The ID of the type
+    :param description: An optional description of the type
+    :param type: The type of the type (primitive or object)
+    :param properties: A list of Object properties if the type is `object`.
+    :param enum: The literal values if the type is a `string`.
+    :param items: The recurring array items if type is an `array` of items.
+    """
+
     id: str
     description: typing.Optional[str]
     type: str
