@@ -162,7 +162,7 @@ class Items:
 
 
 @dataclass
-class ObjectProperty(GeneratesModuleMixin):
+class ObjectProperty:
     """A Property for non primitives types; object types are composed of these.
 
     :param name: The name of the property (attribute name).
