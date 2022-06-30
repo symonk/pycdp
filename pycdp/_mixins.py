@@ -6,4 +6,8 @@ class GeneratesModuleMixin:
 
     def mod_name(self, attr: str) -> str:
         """The python module name in snake case."""
-        return f"{name_to_snake_case(self.__dict__[attr])}.py"
+        attribute: str = getattr(self, attr, None)
+        if attribute is None:
+            raise ValueError(f"Cannot determine module name from: {self}")
+        print(attribute)
+        return f"{name_to_snake_case(attribute)}.py"

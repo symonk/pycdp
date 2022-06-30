@@ -1,6 +1,8 @@
 import json
 import pathlib
+import re
 
+from ._patterns import SNAKE_CASE_PATTERN
 from ._types import ProtocolMappingAlias
 
 
@@ -22,14 +24,8 @@ def browser_protocol_data() -> ProtocolMappingAlias:
 
 
 def name_to_snake_case(name: str):
-    """Given a string, convert it to snake case."""
-    if not name:
-        return name
-    new = [name[0].lower()]
-    for char in name[1:]:
-        if char.isupper():
-            new.append("_")
-            new.append(char.lower())
-        else:
-            new.append(char)
-    return "".join(new)
+    """Given a string; convert it to camel case.
+    Taken from https://stackoverflow.com/a/1176023
+    """
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
