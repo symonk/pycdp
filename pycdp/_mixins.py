@@ -8,6 +8,5 @@ class GeneratesModuleMixin:
         """The python module name in snake case."""
         attribute: str = getattr(self, attr, None)
         if attribute is None:
-            raise ValueError(f"Cannot determine module name from: {self}")
-        print(attribute)
+            raise AttributeError(f"Cannot determine module name from: {self}")
         return f"{name_to_snake_case(attribute)}.py"

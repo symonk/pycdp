@@ -2,7 +2,6 @@ import json
 import pathlib
 import re
 
-from ._patterns import SNAKE_CASE_PATTERN
 from ._types import ProtocolMappingAlias
 
 
