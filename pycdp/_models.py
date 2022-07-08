@@ -290,3 +290,11 @@ class Domain(GeneratesModuleMixin):
             commands=[Command.deserialize(command) for command in data.get("commands", [])],
             events=[Event.deserialize(event) for event in data.get("events", [])],
         )
+
+    def generate(self) -> str:
+        """Domain object to python source code.  Domain objects are all dataclasses"""
+        base = rf"""
+        @dataclass
+        class {self.domain.title()}:\
+            description: str
+        """

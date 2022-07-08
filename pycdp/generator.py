@@ -22,6 +22,9 @@ def main(config: Config) -> int:
     domains = [Domain.deserialize(domain) for domain in merged_domains]
     for domain in domains:
         create_empty_module(devtools_dir, domain)
+        # Now we need to build dynamic objects, properly typed from each structure:
+        # Todo: We need an algorithm for `dependencies` so that things are built in order?
+        # Todo: Generating actual python code is quite tricky here.
     return 0
 
 
